@@ -7,6 +7,7 @@ import time
 # sudo rfcomm release 0
 # sudo rfcomm bind 0 6C:C8:40:06:C4:F6 1
 # picocom -b 115200 /dev/rfcomm0
+# 292383
 
 @dataclass
 class MotorCommand:
@@ -14,13 +15,15 @@ class MotorCommand:
     command: Optional[List[str]] = None
     solution_seq: Optional[List[str]] = None
     motors: Dict[str, str] = field(default_factory=lambda: {
-        'U': 'X',  # top
-        'D': 'Y',  # bottom
+        'D': 'X',  # top
+        'U': 'Y',  # bottom
         'L': 'Z',  # left
         'R': 'A',  # right
         'F': 'B',  # back
         'B': 'C'   # front
     })
+
+    # 'U': 'X', 'D': 'Y'
     serial_port: str = '/dev/rfcomm0'
     serial_baudrate: int = 115200
     serial_timeout: int = 1
@@ -46,7 +49,7 @@ class MotorCommand:
         self.solution_seq = self.solution_str.split(' ')
 
     def generate_motor_commands(self) -> Optional[List[str]]:
-        rotation_map = {'1': '90', '2': '180', '3': '-90'}
+        rotation_map = {'1': '1', '2': '2', '3': '-1'}
         self.command = []
 
         for move in self.solution_seq:

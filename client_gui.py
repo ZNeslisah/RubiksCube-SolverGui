@@ -656,7 +656,7 @@ photo = ImageTk.PhotoImage(resized)
 mode_select_frame = Frame(frame, bg="white")
 mode_select_frame.place(relx=0.5, rely=0.5, anchor="center")
 
-Label(mode_select_frame, text="     Ms.Cube", bg="white", font=("Arial", 25, "bold")).pack(pady=20)
+Label(mode_select_frame, text="     RoboCube", bg="white", font=("Arial", 28, "bold")).pack(pady=20)
 Label(mode_select_frame, image=photo, bg="white").pack(pady=5)
 Label(mode_select_frame, text="Select Solver Mode", bg="white", font=("Arial", 20)).pack(pady=10)
 
@@ -723,7 +723,7 @@ Button(pattern_select_frame, text="Next", font=("Arial", 16), command=proceed_af
 # --- Subframe 3: Input Method Selection ---
 input_select_frame = Frame(frame, bg="white")
 
-Label(input_select_frame, text="     Ms.Cube", bg="white", font=("Arial", 25, "bold")).pack(pady=20)
+Label(input_select_frame, text="     RoboCube", bg="white", font=("Arial", 25, "bold")).pack(pady=20)
 Label(input_select_frame, image=photo, bg="white").pack(pady=5)
 Label(input_select_frame, text="Select Input Method", bg="white", font=("Arial", 20)).pack(pady=10)
 
