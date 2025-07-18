@@ -7,7 +7,8 @@ import time
 # sudo rfcomm release 0
 # sudo rfcomm bind 0 6C:C8:40:06:C4:F6 1
 # picocom -b 115200 /dev/rfcomm0
-# 292383
+
+
 
 @dataclass
 class MotorCommand:

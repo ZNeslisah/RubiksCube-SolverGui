@@ -10,6 +10,18 @@ from tkinter import ttk
 import re
 from glob import glob
 from sendToEsp import MotorCommand
+import subprocess
+
+
+def setup_bluetooth():
+    try:
+        subprocess.run(["sudo", "rfcomm", "release", "0"], check=True)
+        subprocess.run(["sudo", "rfcomm", "bind", "0", "6C:C8:40:06:C4:F6", "1"], check=True)
+        print("Bluetooth bound to /dev/rfcomm0")
+    except subprocess.CalledProcessError as e:
+        print(f"Bluetooth setup failed: {e}")
+
+setup_bluetooth()
 
 model_path = os.path.join(os.path.dirname(__file__), "color_classification_model3.h5")
 model = load_model(model_path)
@@ -23,7 +35,6 @@ colorpick_id = [0 for i in range(6)]
 curcol = None
 t = ("U", "R", "F", "D", "L", "B")
 cols = ("yellow", "green", "red", "white", "blue", "orange")
-# model = load_model("color_classification_model.h5")
 
 label_names = ['blue', 'red', 'yellow', 'orange', 'white', 'green']
 
@@ -110,7 +121,7 @@ def open_camera_window():
     def capture_boxes():
         global current_prediction
         if last_frame is None:
-            print("No frame to capture")
+            # print("No frame to capture")
             return
 
         facelets = []
@@ -135,7 +146,7 @@ def open_camera_window():
         predicted_indices = np.argmax(predictions, axis=1)
         predicted_labels = [label_names[idx] for idx in predicted_indices]
 
-        print("Predicted Colors:")
+        # print("Predicted Colors:")
 
         # Draw color face preview on the canvas
         color_preview_canvas.delete("all")
@@ -230,17 +241,17 @@ def open_camera_window():
 
             # Identify face index from center color
             center_color = current_prediction[4]
-            print(f'center color: {center_color}')
+            # print(f'center color: {center_color}')
             if center_color not in color_to_face_index:
-                print("Unknown center color:", center_color)
+                # print("Unknown center color:", center_color)
                 return
 
             face_index = color_to_face_index[center_color]
-            print(f'face index {face_index}')
+            # print(f'face index {face_index}')
             confirmed_faces[face_index] = int_labels
-            print(f'confirmed faces {confirmed_faces}')
+            # print(f'confirmed faces {confirmed_faces}')
 
-            print(f"Saved face {face_index} ({center_color}):", int_labels)
+            # print(f"Saved face {face_index} ({center_color}):", int_labels)
             draw_unfolded_face(face_index)
 
             num_saved = len(confirmed_faces)
@@ -256,13 +267,14 @@ def open_camera_window():
 
 
         else:
-            print("No prediction to save")
+            pass
+            # print("No prediction to save")
 
         
 
     def discard_prediction():
         global current_prediction
-        print("Prediction discarded.")
+        # print("Prediction discarded.")
         current_prediction = None
 
         btn_tick.grid_forget()
@@ -273,7 +285,7 @@ def open_camera_window():
 
     def build_solver_string():
         if len(confirmed_faces) != 6:
-            print("Error: Need exactly 6 faces scanned.")
+            # print("Error: Need exactly 6 faces scanned.")
             return None
 
         face_char_order = ["U", "R", "F", "D", "L", "B"]  # expected order
@@ -281,7 +293,7 @@ def open_camera_window():
 
         for face_index in range(6):
             if face_index not in confirmed_faces:
-                print(f"Missing face {face_index}")
+                # print(f"Missing face {face_index}")
                 return None
 
             face = confirmed_faces[face_index]
@@ -294,7 +306,7 @@ def open_camera_window():
             face = confirmed_faces[face_index]
             definition += ''.join(center_color_to_face[color] for color in face)
 
-        print(f'Cube state: {definition}')
+        # print(f'Cube state: {definition}')
         return definition
     
     def start_blink():
@@ -327,12 +339,12 @@ def open_camera_window():
                     pattern_clean = pattern_seq.strip()
                     full_solution = solution_clean + " " + pattern_clean
                 else:
-                    print("No valid pattern selected")
+                    # print("No valid pattern selected")
                     full_solution = solution_clean
             else:
                 full_solution = solution_clean
 
-            print("Solution:", full_solution)
+            # print("Solution:", full_solution)
 
             solution_box.delete(1.0, END)
             solution_box.insert(INSERT, f"Solution:\n{full_solution}")
@@ -340,7 +352,6 @@ def open_camera_window():
             # data = MotorCommand(full_solution)
             # data.convert_to_sequence()
             # data.generate_motor_commands()
-
 
             # blinking_label.config(text="Load the cube to the machine!")
             # start_blink()
@@ -471,9 +482,9 @@ def open_camera_window():
 
 
 
-    cap = cv2.VideoCapture(4)
+    cap = cv2.VideoCapture(0)
     if not cap.isOpened():
-        print("❌ Failed to open camera")
+        # print("❌ Failed to open camera")
         return  # Or show error popup
 
     def show_frame():
@@ -508,7 +519,6 @@ def manual_input_window():
     global root, canvas, display, txt_host, txt_port
     full_solution = None
 
-
     root = Toplevel(main_root)
     root.grab_set()  # Optional: Focus input on this window
 
@@ -516,7 +526,7 @@ def manual_input_window():
         root.destroy()
         main_root.deiconify()  # Show the main window again
 
-
+    root.protocol("WM_DELETE_WINDOW", main_root.quit)
     root.wm_title("Solver Client")
     root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
     canvas = Canvas(root, width=WINDOW_WIDTH, height=WINDOW_HEIGHT)
@@ -531,7 +541,7 @@ def manual_input_window():
     blinking_label.place(x=15 + 6.5 * width, y=1.8 * width)
 
     def show_text(txt):
-        print(txt)
+        # print(txt)
         display.insert(INSERT, txt)
         root.update_idletasks()
 
@@ -571,7 +581,7 @@ def manual_input_window():
             return
 
         root.update_idletasks()
-        print(f'cube state: {defstr}')
+        # print(f'cube state: {defstr}')
 
         try:
             solution = solver.solve(defstr)
@@ -586,7 +596,7 @@ def manual_input_window():
                     full_solution = solution_clean + " " + pattern_clean
 
                 else:
-                    print("No valid pattern selected")
+                    # print("No valid pattern selected")
                     full_solution = solution_clean
             else:
                 full_solution = solution_clean
@@ -621,7 +631,7 @@ def manual_input_window():
     def send():
         global full_solution
         data = MotorCommand(full_solution)
-        print(full_solution)
+        # print(full_solution)
         data.convert_to_sequence()
         data.generate_motor_commands()
         data.send_sequence()
@@ -706,15 +716,6 @@ Label(mode_select_frame, text="Select Solver Mode", bg="white", font=("Arial", 2
 mode_button_row = Frame(mode_select_frame, bg="white")
 mode_button_row.pack(pady=20)
 
-# def select_mode(mode):
-#     global selected_mode
-#     selected_mode = mode
-#     mode_select_frame.place_forget()
-#     if mode == "Create Pattern":
-#         pattern_select_frame.place(relx=0.5, rely=0.5, anchor="center")
-#     else:
-#         input_select_frame.place(relx=0.5, rely=0.5, anchor="center")
-
 def select_mode(mode):
     global selected_mode
     selected_mode = mode
@@ -758,7 +759,7 @@ def update_pattern_image(event=None):
         pattern_image_label.config(image=tk_img)
     except Exception as e:
         pattern_image_label.config(image='', text="No image available")
-        print(f"Image not found for pattern '{selected}':", e)
+        # print(f"Image not found for pattern '{selected}':", e)
 
 # Bind dropdown change to image update
 pattern_combo.bind("<<ComboboxSelected>>", update_pattern_image)
@@ -768,9 +769,9 @@ def proceed_after_pattern():
     global selected_pattern
     selected_pattern = pattern_var.get()
     if not selected_pattern:
-        print("No pattern selected")
+        # print("No pattern selected")
         return
-    print("Selected pattern:", selected_pattern)
+    # print("Selected pattern:", selected_pattern)
     pattern_image_label.config(image="", text="")
     pattern_select_frame.place_forget()
     input_select_frame.place(x=0,y=0)
